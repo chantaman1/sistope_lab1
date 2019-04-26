@@ -112,6 +112,17 @@ int main(int argc, char* argv[])
     printf("Cantidad de discos: %i\n", discCant);
     printf("Ancho de cada disco: %i\n", discWidth);
     printf("BFlag: %i\n", bFlag);
+
+    //Probando funcionalidad de exe cv
+    
+    int pid = fork();
+    char* arr[] = {"-h", "hola", (const char*)NULL};
+    if(pid == 0)
+    {
+        int exeint = execv("./testEXE", arr);
+        printf("No se ha copiado el nuevo programa\n");
+    }
+
     readFile(fileIn);
     checkDestination(0.021, 19.0, discWidth, discCant);
     checkDestination(0.0545, 0.1545, discWidth, discCant);
