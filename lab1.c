@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h> //Unncoment in Linux
+#include <math.h>
 #define TRUE 1
 #define FALSE 0
 
@@ -46,43 +47,13 @@ int readFile(char* filename){
 }
 
 //Retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
-int checkDestination(long coordV, long coordU, int discWidth, int discCant){
-    int discV;
-    int discU;
-    long maxRadius = discWidth*discCant;
-    if(abs(coordV) > maxRadius || abs(coordU) > maxRadius){
-       return -1;
-    }
-    else if(abs(coordV) <= 1 && abs(coordU) > discWidth){
-       return -1;
-    }
-    else if(abs(coordU) <= 1 && abs(coordV) > discWidth){
-       return -1;
-    }
-    else if(abs(coordV) <= 1 && abs(coordU) < discWidth){
-       printf("disco Destino: 1\r\n");
-       return 1;
-    }
-    else if(abs(coordU) <= 1 && abs(coordV) < discWidth){
-       printf("disco Destino: 1\r\n");
-       return 1;
-    }
-    else if(abs(coordU) <= 1 && abs(coordV) <= 1){
-       printf("disco Destino: 1\r\n");
-       return 1;
-    }
-    else{
-       discV = (abs(coordV)/discWidth) + 1;
-       discU = (abs(coordU)/discWidth) + 1;
-       if(discV == discU){
-          printf("disco Destino: %d\r\n", discV);
-          return discV;
-       }
-       else{
-          printf("disco no invalido.\r\n");
-          return -1;
-       }
-    }
+int checkDestination(double coordV, double coordU, int discWidth, int discCant){
+    double distanceUV;
+    double maxRadius = discWidth*discCant;
+    distanceUV = sqrt(pow(coordV,2)+ pow(coordU,2));
+    int disc = (distanceUV/discWidth) + 1;
+    printf("Coordenada V: %lf , Coordenada U: %lf, y Distancia: %lf, Pertenecen al disco: %d\r\n", coordV, coordU, distanceUV, disc);
+    return disc;
 }
 
 void writeFile(char** data){
