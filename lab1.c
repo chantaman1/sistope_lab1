@@ -5,6 +5,90 @@
 #define TRUE 1
 #define FALSE 0
 
+void readLine(FILE* file, char* line){
+    int i;
+    int limit = 128;
+    int read;
+
+    read = fread(line, sizeof(char), limit, file);
+    line[read] = '\0';
+
+    for(i = 0; i <= read;i++)
+    {
+        if('\0' == line[i] || '\n' == line[i] || '\r' == line[i])
+        {
+            line[i] = '\0';
+            break;
+        }
+    }
+
+    if(i != read)
+    {
+        fseek(file, i - read + 1, SEEK_CUR);
+    }
+}
+
+int readFile(char* filename){
+    FILE* fs;
+    int i = 0;
+    fs = fopen(filename, "r");
+    if(fs == NULL){
+       printf("File %s does not exist.\r\n", filename);
+       exit(0);
+    }
+    while(!feof(fs)){
+       char *line = (char*)malloc(128*sizeof(char));
+       readLine(fs, line);
+       printf("linea %d: %s\r\n", i, line);
+       i++;
+    }
+    return 0;
+}
+
+//Retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
+int checkDestination(long coordV, long coordU, int discWidth, int discCant){
+    int discV;
+    int discU;
+    long maxRadius = discWidth*discCant;
+    if(abs(coordV) > maxRadius || abs(coordU) > maxRadius){
+       return -1;
+    }
+    else if(abs(coordV) <= 1 && abs(coordU) > discWidth){
+       return -1;
+    }
+    else if(abs(coordU) <= 1 && abs(coordV) > discWidth){
+       return -1;
+    }
+    else if(abs(coordV) <= 1 && abs(coordU) < discWidth){
+       printf("disco Destino: 1\r\n");
+       return 1;
+    }
+    else if(abs(coordU) <= 1 && abs(coordV) < discWidth){
+       printf("disco Destino: 1\r\n");
+       return 1;
+    }
+    else if(abs(coordU) <= 1 && abs(coordV) <= 1){
+       printf("disco Destino: 1\r\n");
+       return 1;
+    }
+    else{
+       discV = (abs(coordV)/discWidth) + 1;
+       discU = (abs(coordU)/discWidth) + 1;
+       if(discV == discU){
+          printf("disco Destino: %d\r\n", discV);
+          return discV;
+       }
+       else{
+          printf("disco no invalido.\r\n");
+          return -1;
+       }
+    }
+}
+
+void writeFile(char** data){
+
+}
+
 int main(int argc, char* argv[])
 {
     printf("\n\n##### Inicio de la ejecucion #####\n\n");
@@ -57,6 +141,10 @@ int main(int argc, char* argv[])
     printf("Cantidad de discos: %i\n", discCant);
     printf("Ancho de cada disco: %i\n", discWidth);
     printf("BFlag: %i\n", bFlag);
+    readFile(fileIn);
+    checkDestination(0.021, 19.0, discWidth, discCant);
+    checkDestination(0.0545, 0.1545, discWidth, discCant);
+    checkDestination(27.0, 38.0, discWidth, discCant);
 
     printf("\n\n##### Fin de la ejecucion #####\n\n");
     return 0;
