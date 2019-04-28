@@ -52,8 +52,13 @@ int checkDestination(double coordV, double coordU, int discWidth, int discCant){
     double maxRadius = discWidth*discCant;
     distanceUV = sqrt(pow(coordV,2)+ pow(coordU,2));
     int disc = (distanceUV/discWidth) + 1;
-    printf("Coordenada V: %lf , Coordenada U: %lf, y Distancia: %lf, Pertenecen al disco: %d\r\n", coordV, coordU, distanceUV, disc);
-    return disc;
+    if(distanceUV > maxRadius){
+       return -1;
+    }
+    else{
+       printf("Coordenada V: %lf , Coordenada U: %lf, y Distancia: %lf, Pertenecen al disco: %d\r\n", coordV, coordU, distanceUV, disc);
+       return disc;
+    }
 }
 
 void writeFile(char** data){
@@ -114,8 +119,8 @@ int main(int argc, char* argv[])
     printf("BFlag: %i\n", bFlag);
     readFile(fileIn);
     checkDestination(0.021, 19.0, discWidth, discCant);
-    checkDestination(0.0545, 0.1545, discWidth, discCant);
-    checkDestination(27.0, 38.0, discWidth, discCant);
+    checkDestination(-0.0545, 0.1545, discWidth, discCant);
+    checkDestination(27.0, -38.0, discWidth, discCant);
 
     printf("\n\n##### Fin de la ejecucion #####\n\n");
     return 0;
