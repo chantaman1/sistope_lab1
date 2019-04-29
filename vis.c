@@ -6,7 +6,7 @@
 #include <math.h>
 #define TRUE 1
 #define FALSE 0
-#define SIZE 512
+#define SIZE 128
 
 //VARIABLES GLOBALES.
 double mediaReal;
@@ -55,7 +55,7 @@ void asignarVisibilidadRecibida(double* datosVisibilidad){
     ruido = ruido + datosVisibilidad[4];
 }
 
-void* obtenerVisibilidadRecibida(char* visibilidad){
+void obtenerVisibilidadRecibida(char* visibilidad){
     int i; //DECLARACION DE i PARA EL CICLO FOR.
     int j = 0; //DECLARACION DE j PARA POSICIONAR DOUBLE EN ARREGLO.
     int k = 0; //DECLARACION DE k PARA POSICIONAR CHAR EN ARREGLO.
@@ -91,6 +91,7 @@ double* prepararDatosVisibilidad(){
     data[1] = calcularMediaImaginaria();
     data[2] = calcularPotencia();
     data[3] = calcularRuido();
+    data[4] = (double) totalVisibilidades;
     return data;
 }
 
@@ -100,14 +101,10 @@ int main(int argc, char* argv[])
     mediaImaginaria = 0;
     ruido = 0;
     totalVisibilidades = 0;
-    int fd[2]; //PIPE PARA RECIBIR INFORMACIÓN DEL PADRE.
-    int fn[2]; //PIPE PARA ENVIAR INFORMACIÓN AL PADRE.
-    char buffer[SIZE];
-    char* ejemplo = (char*)malloc(128*sizeof(char));
-    ejemplo = "46.75563,-160.447845,-0.014992,0.005196,0.005011";
-    obtenerVisibilidadRecibida(ejemplo);
-    ejemplo = "119.08387,-30.927526,0.016286,-0.001052,0.005888";
-    obtenerVisibilidadRecibida(ejemplo);
-    printf("MediaR: %lf, MediaI: %lf, Ruido: %lf", mediaReal, mediaImaginaria, ruido);
+    int fd1[2]; //PIPE PARA RECIBIR INFORMACIÓN DEL PADRE.
+    int fd2[2]; //PIPE PARA ENVIAR INFORMACIÓN AL PADRE.
+    char* buffer = (char*)malloc(SIZE*sizeof(char));
+
+
     return 0;
 }

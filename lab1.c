@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include <unistd.h> //Unncoment in Linux
 #include <math.h>
 #define TRUE 1
@@ -29,23 +30,6 @@ void readLine(FILE* file, char* line){
     }
 }
 
-int readFile(char* filename){
-    FILE* fs;
-    int i = 0;
-    fs = fopen(filename, "r");
-    if(fs == NULL){
-       printf("File %s does not exist.\r\n", filename);
-       exit(0);
-    }
-    while(!feof(fs)){
-       char *line = (char*)malloc(128*sizeof(char));
-       readLine(fs, line);
-       printf("linea %d: %s\r\n", i, line);
-       i++;
-    }
-    return 0;
-}
-
 //Retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
 int checkDestination(double coordV, double coordU, int discWidth, int discCant){
     double distanceUV;
@@ -56,9 +40,45 @@ int checkDestination(double coordV, double coordU, int discWidth, int discCant){
        return -1;
     }
     else{
-       printf("Coordenada V: %lf , Coordenada U: %lf, y Distancia: %lf, Pertenecen al disco: %d\r\n", coordV, coordU, distanceUV, disc);
        return disc;
     }
+}
+
+void inicializarCharArray(char* array, int largo){
+    int i;
+    for(i = 0; i < largo; i++){
+      array[i] = 0;
+    }
+}
+
+int obtenerVisibilidadRecibida(char* visibilidad, int discWidth, int discCant){
+    int i; //DECLARACION DE i PARA EL CICLO FOR.
+    int j = 0; //DECLARACION DE j PARA POSICIONAR DOUBLE EN ARREGLO.
+    int k = 0; //DECLARACION DE k PARA POSICIONAR CHAR EN ARREGLO.
+    int len = strlen(visibilidad); //OBTENGO EL LARGO DEL STRING RECIBIDO.
+    int arrayLength = 32;
+    double* data = (double*)malloc(len*sizeof(double));
+    char* temp = (char*)malloc(arrayLength*sizeof(char));
+    inicializarCharArray(temp, arrayLength); //INICIALIZO EL ARREGLO PARA QUE NO TENGA BASURA.
+    for(i = 0; i <= len; i++){
+      if(i == len){ //SI LOS LARGOS SON IGUALES, SIGNIFICA QUE TERMINE DE PROCESAR LA INFORMACION.
+        data[j] = atof(temp);
+        free(temp);
+      }
+      else if(visibilidad[i] == 44){ //SI EN LA POSICION HAY UNA ',', SIGNIFICA QUE TERMINE DE LEER UN DATO.
+        data[j] = atof(temp);
+        j++;
+        k = 0;
+        free(temp); //LIBERO LA MEMORIA PARA EVITAR LEAKS.
+        temp = (char*)malloc(32*sizeof(char)); //LE ASIGNO ESPACIO EN LA RAM NUEVAMENTE.
+        inicializarCharArray(temp, arrayLength); //LE VUELVO A ASIGNAR CEROS PARA QUE NO HAYA BASURA.
+      }
+      else{
+        temp[k] = visibilidad[i];
+        k++;
+      }
+    }
+    return checkDestination(data[0], data[1], discWidth, discCant); //BUSCO EL DISCO AL QUE PERTENECE LA INFO.
 }
 
 void writeFile(char** data){
@@ -75,6 +95,8 @@ int main(int argc, char* argv[])
     char * fileOut = NULL;      //-o Nombre del archivo de salida
     int discCant = 0;           //-n Cantidad de discos
     int discWidth = 0;          //-d Ancho de cada disco
+    //Variables de procesamiento.
+    FILE* fs;
 
     if (argc < 9) //Si hay menos de 9 argumentos, termina la ejecución del programa y entrega mensaje de error
     {
@@ -91,7 +113,7 @@ int main(int argc, char* argv[])
                 case 'i':
                     fileIn = optarg;
                     break;
-                
+
                 case 'o':
                     fileOut = optarg;
                     break;
@@ -103,7 +125,7 @@ int main(int argc, char* argv[])
                 case 'd':
                     sscanf(optarg, "%i", &discWidth);
                     break;
-                
+
                 case 'b':
                     bFlag = TRUE;
                     break;
@@ -111,16 +133,28 @@ int main(int argc, char* argv[])
         }
     }
 
-
-    printf("Archivo entrada: %s\n", fileIn);
-    printf("Archivo salida: %s\n", fileOut);
-    printf("Cantidad de discos: %i\n", discCant);
-    printf("Ancho de cada disco: %i\n", discWidth);
-    printf("BFlag: %i\n", bFlag);
-    readFile(fileIn);
-    checkDestination(0.021, 19.0, discWidth, discCant);
-    checkDestination(-0.0545, 0.1545, discWidth, discCant);
-    checkDestination(27.0, -38.0, discWidth, discCant);
+    fs = fopen(fileIn, "r");
+    if(fs == NULL){
+       printf("File %s does not exist.\r\n", fileIn);
+       exit(0);
+    }
+    while(!feof(fs)){
+       char *line = (char*)malloc(128*sizeof(char));
+       readLine(fs, line);
+       if(line[0] == '\0'){
+         //AQUI ES CUANDO SE AVISA A LOS HIJOS DE FIN
+         //Y SE LES PIDE LOS DATOS CALCULADOS.
+         //PLAN: RECIBIR LOS DATOS DE LOS HIJOS Y LUEGO ALMACENARLO EN UN ARCHIVO.
+         printf("FIN");
+       }
+       else{
+         //AQUI SE LES ENTREGA LINEA A LINEA LOS DATOS DE ENTRADA.
+         //A CADA HIJO QUE TENGAMOS.
+         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
+         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
+         printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+       }
+    }
 
     printf("\n\n##### Fin de la ejecucion #####\n\n");
     return 0;
