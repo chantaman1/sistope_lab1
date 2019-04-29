@@ -85,6 +85,15 @@ void* obtenerVisibilidadRecibida(char* visibilidad){
     asignarVisibilidadRecibida(data); //ASIGNO LA INFORMACION A SU VARIABLE RESPECTIVA.
 }
 
+double* prepararDatosVisibilidad(){
+    double* data = (double*)malloc(5*sizeof(double));
+    data[0] = calcularMediaReal();
+    data[1] = calcularMediaImaginaria();
+    data[2] = calcularPotencia();
+    data[3] = calcularRuido();
+    return data;
+}
+
 int main(int argc, char* argv[])
 {
     mediaReal = 0;
