@@ -81,8 +81,30 @@ int obtenerVisibilidadRecibida(char* visibilidad, int discWidth, int discCant){
     return checkDestination(data[0], data[1], discWidth, discCant); //BUSCO EL DISCO AL QUE PERTENECE LA INFO.
 }
 
-void writeFile(char** data){
-
+void writeFile(double* informacionHijos, char* nombreArchivo, int numDisco){
+  FILE *fp;
+  int i;
+  char** str = (char**)malloc(4*sizeof(char*));
+  for(i = 0; i < 4 ; i++){
+    str[i] = (char*)malloc(20*sizeof(char));
+  }
+  str[0] = "Media real: ";
+  str[1] = "Media imaginaria: ";
+  str[2] = "Potencia: ";
+  str[3] = "Ruido total: ";
+  char disco[] = "Disco ";
+  char endDisc[] = ":\r\n";
+  char endLine[] = "\r\n";
+  fp = fopen(nombreArchivo, "a+");
+  fwrite(disco, 1 , 7, fp);
+  fwrite(&numDisco, 1 , sizeof(int), fp);
+  fwrite(endDisc, 1, 6, fp);
+  for(i = 0; i < 4; i++){
+    fwrite(str[i], 1, sizeof(str[i]), fp);
+    fwrite(&informacionHijos[i], 1, sizeof(double), fp);
+    fwrite(endLine, 1, 5, fp);
+  }
+  fclose(fp);
 }
 
 int main(int argc, char* argv[])
@@ -133,6 +155,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    int k = 1;
     fs = fopen(fileIn, "r");
     if(fs == NULL){
        printf("File %s does not exist.\r\n", fileIn);
@@ -153,6 +176,13 @@ int main(int argc, char* argv[])
          //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
          int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
          printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+         double* ggwp = (double*)malloc(5*sizeof(double));
+         ggwp[0] = 0.514541;
+         ggwp[1] = 2.254541;
+         ggwp[2] = 5.645127;
+         ggwp[3] = 6.544200;
+         writeFile(ggwp, fileOut, k);
+         k++;
        }
     }
 
