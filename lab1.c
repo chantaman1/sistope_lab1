@@ -6,6 +6,8 @@
 #include <math.h>
 #define TRUE 1
 #define FALSE 0
+#define LECTURA 0
+#define ESCRITURA 1
 
 void readLine(FILE* file, char* line){
     int i;
@@ -132,6 +134,39 @@ int main(int argc, char* argv[])
             }
         }
     }
+
+    
+    int i;
+    int ** pipesLectura = (int**)malloc(sizeof(int*)*discCant);         //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA LECTURA DEL PADRE
+    int ** pipesEscritura = (int**)malloc(sizeof(int*)*discCant);       //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA ESCRITURA DEL PADRE
+    for(i=0; i<discCant; i++)                                           //SE CREARÁN TANTOS HIJOS COMOS DISCOS
+    {
+        int pid = fork();
+
+        if(pid == -1)
+        {
+            printf("Error en el fork\n");
+            return 1;
+        }
+        
+        pipesLectura[i] = (int*)malloc(sizeof(int)*2);                  //SE CREAN DOS PIPES POR CADA HIJO PARA LEER
+        pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR
+        pipe(pipesLectura[i]);
+        pipe(pipesEscritura[i]);
+        
+        if(pid == 0) //Si el proceso es el hijo...
+        {
+            close(pipesLectura[i][LECTURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+            char* arr[] = {(const char*)NULL};
+            int exeint = execv("./vis", arr);   //SE COPIARÁ EL EJECUTABLE COMPILADO PREVIAMENTE DEL ARCHIVO VIS.C
+            printf("No se ha copiado el nuevo programa\n");
+        }
+        else
+        {
+            close(pipesEscritura[i][ESCRITURA]); //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
+        }
+    }
+   
 
     fs = fopen(fileIn, "r");
     if(fs == NULL){
