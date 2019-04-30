@@ -101,8 +101,8 @@ int main(int argc, char* argv[])
     mediaImaginaria = 0;
     ruido = 0;
     totalVisibilidades = 0;
-    int fd1[2]; //PIPE PARA RECIBIR INFORMACIÓN DEL PADRE.
-    int fd2[2]; //PIPE PARA ENVIAR INFORMACIÓN AL PADRE.
+    int * pipeLectura = (int*)malloc(sizeof(int)*2);    //PIPE PARA RECIBIR INFORMACIÓN DEL PADRE.
+    int * pipeEscritura = (int*)malloc(sizeof(int)*2);  //PIPE PARA ENVIAR INFORMACIÓN AL PADRE.
     char* buffer = (char*)malloc(SIZE*sizeof(char));
 
 
