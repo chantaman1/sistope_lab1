@@ -1,5 +1,10 @@
-All:
-	gcc -o lab1 lab1.c
-	gcc -o vis vis.c
+Archivo_entrada = prueba2.csv
+Archivo_salida = out1.txt
+Cantidad_discos = 10
+Ancho_discos = 60
 
-	./lab1
+All:
+	gcc lab1.c -lm -o lab1
+	gcc vis.c -lm -o vis 
+
+	./lab1 -i $(Archivo_entrada) -o $(Archivo_salida) -n $(Cantidad_discos) -d $(Ancho_discos)

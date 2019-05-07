@@ -111,7 +111,7 @@ void writeFile(double* informacionHijos, char* nombreArchivo, int numDisco){
 
 int main(int argc, char* argv[])
 {
-    printf("\n\n##### Inicio de la ejecucion #####\n\n");
+    printf("\n\n##### Inicio de la ejecucion PADRE #####\n\n");
     //Manejo de las banderas
     //Variables de entrada
     int bFlag = FALSE;          //-b Bandera indicadora de imprimir datos en pantalla
@@ -157,6 +157,8 @@ int main(int argc, char* argv[])
         }
     }
 
+    //DEBUG
+    printf("Hay %i discos\n", discCant);
 
     int i;
     int ** pipesLectura = (int**)malloc(sizeof(int*)*discCant);         //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA LECTURA DEL PADRE
@@ -171,15 +173,30 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        pipesLectura[i] = (int*)malloc(sizeof(int)*2);                  //SE CREAN DOS PIPES POR CADA HIJO PARA LEER
-        pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR
+        pipesLectura[i] = (int*)malloc(sizeof(int)*2);                  //SE CREAN DOS PIPES POR CADA HIJO PARA LEER (que el padre lea)
+        pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR (que el padre escriba)
         pipe(pipesLectura[i]);
         pipe(pipesEscritura[i]);
 
         if(pid == 0) //Si el proceso es el hijo...
         {
-            close(pipesLectura[i][LECTURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-            char* arr[] = {(const char*)NULL};
+            printf("Soy el hijo antes del execv\n");
+            dup2(pipesLectura[i][LECTURA],STDOUT_FILENO);
+            close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+
+            dup2(pipesEscritura[i][ESCRITURA],STDIN_FILENO);
+            close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
+
+            //ENTONCES EL HIJO:
+            // - LEERÁ DESDE STDIN
+            // - ESCRIBIRÁ POR STDOUT
+
+            //IDEA: Enviar por argumento el número del hijo
+            //char * nro_hijo = (char*)malloc(sizeof(char)*10); 
+            //itoa(i, nro_hijo, 10);
+
+            char* arr[] = {"hi"};
+            printf("arr1: %s", arr[0]);
             int exeint = execv("./vis", arr);   //SE COPIARÁ EL EJECUTABLE COMPILADO PREVIAMENTE DEL ARCHIVO VIS.C
             printf("No se ha copiado el nuevo programa\n");
         }
@@ -205,21 +222,24 @@ int main(int argc, char* argv[])
          printf("FIN");
        }
        else{
-         //AQUI SE LES ENTREGA LINEA A LINEA LOS DATOS DE ENTRADA.
-         //A CADA HIJO QUE TENGAMOS.
-         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
-         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
-         printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
-         double* ggwp = (double*)malloc(5*sizeof(double));
-         ggwp[0] = 0.514541;
-         ggwp[1] = 2.254541;
-         ggwp[2] = 5.645127;
-         ggwp[3] = 6.544200;
-         writeFile(ggwp, fileOut, k);
-         k++;
+        //AQUI SE LES ENTREGA LINEA A LINEA LOS DATOS DE ENTRADA.
+        //A CADA HIJO QUE TENGAMOS.
+        //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
+        int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
+        write(pipesEscritura[disc][ESCRITURA], line, 128);
+        //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+
+        //Forma de escribir el archivo
+        double* ggwp = (double*)malloc(5*sizeof(double));
+        ggwp[0] = 0.514541;
+        ggwp[1] = 2.254541;
+        ggwp[2] = 5.645127;
+        ggwp[3] = 6.544200;
+        writeFile(ggwp, fileOut, k);
+        k++;
        }
     }
 
-    printf("\n\n##### Fin de la ejecucion #####\n\n");
+    printf("\n\n##### Fin de la ejecucion PADRE #####\n\n");
     return 0;
 }

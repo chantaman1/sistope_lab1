@@ -97,14 +97,22 @@ double* prepararDatosVisibilidad(){
 
 int main(int argc, char* argv[])
 {
+    printf("\n\n##### Inicio de la ejecucion HIJO #####\n\n");
+    printf("Hola, soy el hijo\n");
     mediaReal = 0;
     mediaImaginaria = 0;
     ruido = 0;
     totalVisibilidades = 0;
-    int * pipeLectura = (int*)malloc(sizeof(int)*2);    //PIPE PARA RECIBIR INFORMACIÓN DEL PADRE.
-    int * pipeEscritura = (int*)malloc(sizeof(int)*2);  //PIPE PARA ENVIAR INFORMACIÓN AL PADRE.
+
     char* buffer = (char*)malloc(SIZE*sizeof(char));
 
+    while(1)
+    {
+        printf("Voy a leer \n");
+        read(STDIN_FILENO, buffer, SIZE);
+        printf("%s\n",buffer);
+    }
 
+    printf("\n\n##### Fin de la ejecucion HIJO #####\n\n");
     return 0;
 }
