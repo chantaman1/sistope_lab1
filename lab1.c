@@ -4,6 +4,8 @@
 #include <string.h>
 #include <unistd.h> //Unncoment in Linux
 #include <math.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #define TRUE 1
 #define FALSE 0
 #define LECTURA 0
@@ -94,17 +96,20 @@ void writeFile(double* informacionHijos, char* nombreArchivo, int numDisco){
   str[1] = "Media imaginaria: ";
   str[2] = "Potencia: ";
   str[3] = "Ruido total: ";
+  char numArr[512];
+  sprintf(numArr, "%d", numDisco);
   char disco[] = "Disco ";
   char endDisc[] = ":\r\n";
   char endLine[] = "\r\n";
-  fp = fopen(nombreArchivo, "a+");
-  fwrite(disco, 1 , 7, fp);
-  fwrite(&numDisco, 1 , sizeof(int), fp);
-  fwrite(endDisc, 1, 6, fp);
+  fp = fopen(nombreArchivo, "a+b");
+  fwrite(disco, sizeof(char) , strlen(disco), fp);
+  fwrite(numArr, sizeof(char) , strlen(numArr), fp);
+  fwrite(endDisc, sizeof(char), strlen(endDisc), fp);
   for(i = 0; i < 4; i++){
-    fwrite(str[i], 1, sizeof(str[i]), fp);
-    fwrite(&informacionHijos[i], 1, sizeof(double), fp);
-    fwrite(endLine, 1, 5, fp);
+    fwrite(str[i], sizeof(char), strlen(str[i]), fp);
+    sprintf(numArr, "%lf", informacionHijos[i]);
+    fwrite(numArr, sizeof(char), strlen(numArr), fp);
+    fwrite(endLine, sizeof(char), strlen(endLine), fp);
   }
   fclose(fp);
 }
@@ -157,6 +162,15 @@ int main(int argc, char* argv[])
         }
     }
 
+    int k = 1;
+    double* ggwp = (double*)malloc(5*sizeof(double));
+    ggwp[0] = 0.514541;
+    ggwp[1] = 2.254541;
+    ggwp[2] = 5.645127;
+    ggwp[3] = 6.544200;
+    writeFile(ggwp, fileOut, k);
+    k++;
+
     //DEBUG
     printf("Hay %i discos\n", discCant);
 
@@ -192,7 +206,7 @@ int main(int argc, char* argv[])
             // - ESCRIBIRÁ POR STDOUT
 
             //IDEA: Enviar por argumento el número del hijo
-            //char * nro_hijo = (char*)malloc(sizeof(char)*10); 
+            //char * nro_hijo = (char*)malloc(sizeof(char)*10);
             //itoa(i, nro_hijo, 10);
 
             char* arr[] = {"hi"};
@@ -206,7 +220,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    int k = 1;
     fs = fopen(fileIn, "r");
     if(fs == NULL){
        printf("File %s does not exist.\r\n", fileIn);
@@ -228,15 +241,6 @@ int main(int argc, char* argv[])
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
         write(pipesEscritura[disc][ESCRITURA], line, 128);
         //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
-
-        //Forma de escribir el archivo
-        double* ggwp = (double*)malloc(5*sizeof(double));
-        ggwp[0] = 0.514541;
-        ggwp[1] = 2.254541;
-        ggwp[2] = 5.645127;
-        ggwp[3] = 6.544200;
-        writeFile(ggwp, fileOut, k);
-        k++;
        }
     }
 

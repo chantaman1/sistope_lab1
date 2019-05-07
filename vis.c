@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <unistd.h> //Unncoment in Linux
 #include <math.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #define TRUE 1
 #define FALSE 0
 #define SIZE 128
