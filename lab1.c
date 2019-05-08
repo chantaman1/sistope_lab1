@@ -199,28 +199,31 @@ int main(int argc, char* argv[])
 
         if(pid == 0) //Si el proceso es el hijo...
         {
-            dup2(pipesLectura[i][ESCRITURA], STDOUT_FILENO);
-            close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE   
-            
-            dup2(pipesEscritura[i][LECTURA], STDIN_FILENO);
-            close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
-            
             //ENTONCES EL HIJO:
             // - LEERÁ DESDE STDIN
             // - ESCRIBIRÁ POR STDOUT
 
-            //IDEA: Enviar por argumento el número del hijo
+            //dup2(pipesLectura[i][ESCRITURA], STDOUT_FILENO);
+            //close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE   
+            
+            //dup2(pipesEscritura[i][LECTURA], STDIN_FILENO);
+            //close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
+            
 
-            char * nro_hijo = (char*)malloc(sizeof(char)*10);
-            sprintf(nro_hijo, "%d", i);
+            //ESTE ES EL BUENO
+            char * canalLecturaHijo;
+            char * canalEscrituraHijo;
 
-            char* args[] = {"./vis", nro_hijo, NULL};
+            sprintf(canalLecturaHijo, "%i", pipesEscritura[i][LECTURA]);
+            sprintf(canalEscrituraHijo, "%i", pipesLectura[i][ESCRITURA]);
+
+            char* args[] = {"./vis", canalLecturaHijo, canalEscrituraHijo, (char*)NULL};
+
             if(execvp(args[0], args) == -1) //SE COPIARÁ EL EJECUTABLE COMPILADO PREVIAMENTE DEL ARCHIVO VIS.C
             {
                 printf("No se ha copiado el nuevo programa\n");
                 exit(1);
-            }   
-            
+            }      
         }
     }
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
@@ -229,7 +232,7 @@ int main(int argc, char* argv[])
     write(pipesEscritura[0][ESCRITURA], "Hola hijo", 10);
     read(pipesLectura[0][LECTURA],buff,100);
     
-    printf("%s\n", buff);
+    printf("Mensaje del hijo: %s\n", buff);
     
     fs = fopen(fileIn, "r");
     if(fs == NULL){

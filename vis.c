@@ -101,27 +101,25 @@ double* prepararDatosVisibilidad(){
 
 int main(int argc, char* argv[])
 {
-    printf("\n\n##### Inicio de la ejecucion HIJO #####\n\n");
-    
-    int nro = atoi(argv[1]);
+  printf("\n\n##### Inicio de la ejecucion HIJO #####\n\n");
+  
+  int lectura = atoi(argv[1]);
+  int escritura = atoi(argv[2]);
 
+  mediaReal = 0;
+  mediaImaginaria = 0;
+  ruido = 0;
+  totalVisibilidades = 0;
 
-    mediaReal = 0;
-    mediaImaginaria = 0;
-    ruido = 0;
-    totalVisibilidades = 0;
+  char* buffer = (char*)malloc(sizeof(char)*SIZE);
+  char* mensaje = "Se ha recibido un mensaje";
+  
+  read(lectura, buffer, 100);
+  write(escritura, mensaje, strlen(mensaje));
 
-    char* buffer = (char*)malloc(sizeof(char)*SIZE);
-    char* mensaje[]  = "Se ha recibido un mensaje";
-    while(read(STDIN_FILENO, buffer, SIZE) != 3){
-      write(STDOUT_FILENO, mensaje, strlen(mensaje));
-    }
+  //read(STDIN_FILENO, buffer, SIZE);
+  //write(STDOUT_FILENO, buffer, SIZE);
 
-    //read(STDIN_FILENO, buffer, SIZE);
-    //write(STDOUT_FILENO, buffer, SIZE);
-    
-    
-
-    printf("\n\n##### Fin de la ejecucion HIJO #####\n\n");
-    return 0;
+  printf("\n\n##### Fin de la ejecucion HIJO #####\n\n");
+  return 0;
 }
