@@ -1,6 +1,6 @@
 Archivo_entrada = prueba2.csv
 Archivo_salida = out1.txt
-Cantidad_discos = 10
+Cantidad_discos = 8
 Ancho_discos = 60
 
 All:

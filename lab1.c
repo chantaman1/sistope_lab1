@@ -6,6 +6,7 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <getopt.h>
 #define TRUE 1
 #define FALSE 0
 #define LECTURA 0
@@ -179,7 +180,16 @@ int main(int argc, char* argv[])
     int ** pipesEscritura = (int**)malloc(sizeof(int*)*discCant);       //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA ESCRITURA DEL PADRE
     for(i=0; i<discCant; i++)                                           //SE CREARÁN TANTOS HIJOS COMOS DISCOS
     {
-        int pid = fork();
+        
+        pipesLectura[i] = (int*)malloc(sizeof(int)*2);                  //SE CREAN DOS PIPES POR CADA HIJO PARA LEER (que el padre lea)
+        pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR (que el padre escriba)
+        pipe(pipesLectura[i]);
+        pipe(pipesEscritura[i]);
+                                            //EL PADRE...
+        close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+        close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE  
+
+        int pid = fork(); //SE CREA EL NUEVO HIJO
 
         if(pid == -1)
         {
@@ -187,39 +197,38 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        pipesLectura[i] = (int*)malloc(sizeof(int)*2);                  //SE CREAN DOS PIPES POR CADA HIJO PARA LEER (que el padre lea)
-        pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR (que el padre escriba)
-        pipe(pipesLectura[i]);
-        pipe(pipesEscritura[i]);
-
         if(pid == 0) //Si el proceso es el hijo...
         {
-            printf("Soy el hijo antes del execv\n");
-            dup2(pipesLectura[i][LECTURA],STDOUT_FILENO);
-            close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-
-            dup2(pipesEscritura[i][ESCRITURA],STDIN_FILENO);
-            close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
-
+            dup2(pipesLectura[i][ESCRITURA], STDOUT_FILENO);
+            close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE   
+            
+            dup2(pipesEscritura[i][LECTURA], STDIN_FILENO);
+            close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
+            
             //ENTONCES EL HIJO:
             // - LEERÁ DESDE STDIN
             // - ESCRIBIRÁ POR STDOUT
 
             //IDEA: Enviar por argumento el número del hijo
-            //char * nro_hijo = (char*)malloc(sizeof(char)*10);
-            //itoa(i, nro_hijo, 10);
 
-            char* arr[] = {"hi"};
-            printf("arr1: %s", arr[0]);
-            int exeint = execv("./vis", arr);   //SE COPIARÁ EL EJECUTABLE COMPILADO PREVIAMENTE DEL ARCHIVO VIS.C
-            printf("No se ha copiado el nuevo programa\n");
-        }
-        else
-        {
-            close(pipesEscritura[i][ESCRITURA]); //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
+            char * nro_hijo = (char*)malloc(sizeof(char)*10);
+            sprintf(nro_hijo, "%d", i);
+
+            char* args[] = {"./vis", nro_hijo, NULL};
+            if(execvp(args[0], args) == -1) //SE COPIARÁ EL EJECUTABLE COMPILADO PREVIAMENTE DEL ARCHIVO VIS.C
+            {
+                printf("No se ha copiado el nuevo programa\n");
+                exit(1);
+            }   
+            
         }
     }
-
+    //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
+    //TEST: enviando datos a un hijo
+    //write(pipesEscritura[0][ESCRITURA], "Hola hijo", 10);
+    //read(pipesLectura[0][LECTURA],buff,10);
+    //printf("%s", buff);
+    
     fs = fopen(fileIn, "r");
     if(fs == NULL){
        printf("File %s does not exist.\r\n", fileIn);
@@ -239,11 +248,12 @@ int main(int argc, char* argv[])
         //A CADA HIJO QUE TENGAMOS.
         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
-        write(pipesEscritura[disc][ESCRITURA], line, 128);
-        //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+        //write(pipesEscritura[disc][ESCRITURA], line, 128);
+        printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
        }
     }
 
     printf("\n\n##### Fin de la ejecucion PADRE #####\n\n");
     return 0;
+    //ref: http://www.lsi.us.es/cursos/seminario-1.html#331
 }
