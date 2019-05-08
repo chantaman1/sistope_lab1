@@ -115,6 +115,7 @@ int main(int argc, char* argv[])
   char* mensaje = "Se ha recibido un mensaje";
   
   read(lectura, buffer, 100);
+  printf("mensaje padre: %s, largo: %i\r\n", buffer);
   write(escritura, mensaje, strlen(mensaje));
 
   //read(STDIN_FILENO, buffer, SIZE);

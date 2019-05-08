@@ -186,8 +186,8 @@ int main(int argc, char* argv[])
         pipe(pipesLectura[i]);
         pipe(pipesEscritura[i]);
                                             //EL PADRE...
-        close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-        close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE  
+        //close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+        //close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE  
 
         int pid = fork(); //SE CREA EL NUEVO HIJO
 
@@ -211,8 +211,8 @@ int main(int argc, char* argv[])
             
 
             //ESTE ES EL BUENO
-            char * canalLecturaHijo;
-            char * canalEscrituraHijo;
+            char * canalLecturaHijo = (char*)malloc(sizeof(char)*10);
+            char * canalEscrituraHijo = (char*)malloc(sizeof(char)*10);
 
             sprintf(canalLecturaHijo, "%i", pipesEscritura[i][LECTURA]);
             sprintf(canalEscrituraHijo, "%i", pipesLectura[i][ESCRITURA]);
@@ -229,7 +229,8 @@ int main(int argc, char* argv[])
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
     //TEST: enviando datos a un hijo
     char* buff = (char*)malloc(sizeof(char)*100);
-    write(pipesEscritura[0][ESCRITURA], "Hola hijo", 10);
+    char* msg = "Hola hijo";
+    write(pipesEscritura[0][ESCRITURA], msg, strlen(msg));
     read(pipesLectura[0][LECTURA],buff,100);
     
     printf("Mensaje del hijo: %s\n", buff);
@@ -254,7 +255,7 @@ int main(int argc, char* argv[])
         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
         //write(pipesEscritura[disc][ESCRITURA], line, 128);
-        printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+        //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
        }
     }
 
