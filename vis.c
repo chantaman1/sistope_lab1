@@ -10,7 +10,7 @@
 #define FALSE 0
 #define LECTURA 0
 #define ESCRITURA 1
-#define SIZE 128
+#define SIZE 512
 
 //VARIABLES GLOBALES.
 double mediaReal;
@@ -20,13 +20,13 @@ int totalVisibilidades;
 
 //PERMITE CALCULAR LA MEDIA DE LA PARTE REAL.
 double calcularMediaReal(){
-    double media = (1/totalVisibilidades)*mediaReal;
+    double media = ((double)1/(double)totalVisibilidades)*mediaReal;
     return media;
 }
 
 //PERMITE CALCULAR LA MEDIA DE LA PARTE IMAGINARIA.
 double calcularMediaImaginaria(){
-    double media = (1/totalVisibilidades)*mediaImaginaria;
+    double media = ((double)1/(double)totalVisibilidades)*mediaImaginaria;
     return media;
 }
 
@@ -57,6 +57,7 @@ void asignarVisibilidadRecibida(double* datosVisibilidad){
     mediaReal = mediaReal + datosVisibilidad[2];
     mediaImaginaria = mediaImaginaria + datosVisibilidad[3];
     ruido = ruido + datosVisibilidad[4];
+    totalVisibilidades = totalVisibilidades + 1;
 }
 
 void obtenerVisibilidadRecibida(char* visibilidad){
@@ -90,6 +91,7 @@ void obtenerVisibilidadRecibida(char* visibilidad){
 }
 
 double* prepararDatosVisibilidad(){
+  if(totalVisibilidades > 0){
     double* data = (double*)malloc(5*sizeof(double));
     data[0] = calcularMediaReal();
     data[1] = calcularMediaImaginaria();
@@ -97,12 +99,22 @@ double* prepararDatosVisibilidad(){
     data[3] = calcularRuido();
     data[4] = (double) totalVisibilidades;
     return data;
+  }
+  else{
+    double* data = (double*)malloc(5*sizeof(double));
+    data[0] = (double) 0;
+    data[1] = (double) 0;
+    data[2] = (double) 0;
+    data[3] = (double) 0;
+    data[4] = (double) totalVisibilidades;
+    return data;
+  }
 }
 
 int main(int argc, char* argv[])
 {
   printf("\n\n##### Inicio de la ejecucion HIJO #####\n\n");
-  
+
   int lectura = atoi(argv[1]);
   int escritura = atoi(argv[2]);
 
@@ -112,11 +124,15 @@ int main(int argc, char* argv[])
   totalVisibilidades = 0;
 
   char* buffer = (char*)malloc(sizeof(char)*SIZE);
-  char* mensaje = "Se ha recibido un mensaje";
-  
-  read(lectura, buffer, 100);
-  printf("mensaje padre: %s, largo: %i\r\n", buffer);
-  write(escritura, mensaje, strlen(mensaje));
+  while(read(lectura, buffer, SIZE) != 3){
+    obtenerVisibilidadRecibida(buffer);
+    free(buffer);
+    buffer = (char*)malloc(sizeof(char)*SIZE);
+  }
+  if(strcmp(buffer, "FIN") == 0){
+    double* datosObtenidos = prepararDatosVisibilidad();
+    write(escritura, datosObtenidos, SIZE);
+  }
 
   //read(STDIN_FILENO, buffer, SIZE);
   //write(STDOUT_FILENO, buffer, SIZE);

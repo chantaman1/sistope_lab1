@@ -40,7 +40,7 @@ int checkDestination(double coordV, double coordU, int discWidth, int discCant){
     double distanceUV;
     double maxRadius = discWidth*discCant;
     distanceUV = sqrt(pow(coordV,2)+ pow(coordU,2));
-    int disc = (distanceUV/discWidth) + 1;
+    int disc = (distanceUV/discWidth);
     if(distanceUV > maxRadius){
        return -1;
     }
@@ -163,52 +163,45 @@ int main(int argc, char* argv[])
         }
     }
 
-    int k = 1;
-    double* ggwp = (double*)malloc(5*sizeof(double));
-    ggwp[0] = 0.514541;
-    ggwp[1] = 2.254541;
-    ggwp[2] = 5.645127;
-    ggwp[3] = 6.544200;
-    writeFile(ggwp, fileOut, k);
-    k++;
-
     //DEBUG
     printf("Hay %i discos\n", discCant);
 
     int i;
+    pid_t child_pid, wpid;
+    int status = 0;
     int ** pipesLectura = (int**)malloc(sizeof(int*)*discCant);         //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA LECTURA DEL PADRE
     int ** pipesEscritura = (int**)malloc(sizeof(int*)*discCant);       //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA ESCRITURA DEL PADRE
     for(i=0; i<discCant; i++)                                           //SE CREARÁN TANTOS HIJOS COMOS DISCOS
     {
-        
+
         pipesLectura[i] = (int*)malloc(sizeof(int)*2);                  //SE CREAN DOS PIPES POR CADA HIJO PARA LEER (que el padre lea)
         pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR (que el padre escriba)
         pipe(pipesLectura[i]);
         pipe(pipesEscritura[i]);
                                             //EL PADRE...
         //close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-        //close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE  
+        //close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
 
-        int pid = fork(); //SE CREA EL NUEVO HIJO
+        child_pid = fork(); //SE CREA EL NUEVO HIJO
 
-        if(pid == -1)
+        if(child_pid == -1)
         {
             printf("Error en el fork\n");
             return 1;
         }
 
-        if(pid == 0) //Si el proceso es el hijo...
+        if(child_pid == 0) //Si el proceso es el hijo...
         {
             //ENTONCES EL HIJO:
             // - LEERÁ DESDE STDIN
             // - ESCRIBIRÁ POR STDOUT
 
             //dup2(pipesLectura[i][ESCRITURA], STDOUT_FILENO);
-            //close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE   
-            
+            //close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+
             //dup2(pipesEscritura[i][LECTURA], STDIN_FILENO);
             //close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
-            
+
 
             //ESTE ES EL BUENO
             char * canalLecturaHijo = (char*)malloc(sizeof(char)*10);
@@ -223,19 +216,18 @@ int main(int argc, char* argv[])
             {
                 printf("No se ha copiado el nuevo programa\n");
                 exit(1);
-            }      
+            }
         }
     }
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
     //TEST: enviando datos a un hijo
-    char* buff = (char*)malloc(sizeof(char)*100);
-    char* msg = "Hola hijo";
-    write(pipesEscritura[0][ESCRITURA], msg, strlen(msg));
-    read(pipesLectura[0][LECTURA],buff,100);
-    
-    printf("Mensaje del hijo: %s\n", buff);
-    
+    //read(pipesLectura[0][LECTURA],buff,100);
     fs = fopen(fileIn, "r");
+    int j;
+    double **dataHijos = (double**)malloc(sizeof(double*)*discCant);
+    for(j = 0; j < discCant; j++){
+      dataHijos[j] = (double*)malloc(sizeof(double)*512);
+    }
     if(fs == NULL){
        printf("File %s does not exist.\r\n", fileIn);
        exit(0);
@@ -247,18 +239,29 @@ int main(int argc, char* argv[])
          //AQUI ES CUANDO SE AVISA A LOS HIJOS DE FIN
          //Y SE LES PIDE LOS DATOS CALCULADOS.
          //PLAN: RECIBIR LOS DATOS DE LOS HIJOS Y LUEGO ALMACENARLO EN UN ARCHIVO.
-         printf("FIN");
+         char* endProgram = "FIN";
+         for(j = 0; j < discCant; j++){
+           write(pipesEscritura[j][ESCRITURA], endProgram, strlen(endProgram));
+         }
+         for(j = 0; j < discCant; j++){
+           read(pipesLectura[j][LECTURA], dataHijos[j], 512);
+         }
        }
        else{
+        printf("DATA: %s\r\n", line);
         //AQUI SE LES ENTREGA LINEA A LINEA LOS DATOS DE ENTRADA.
         //A CADA HIJO QUE TENGAMOS.
         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
+        printf("disco destino: %i\r\n", disc);
+        write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
         //write(pipesEscritura[disc][ESCRITURA], line, 128);
         //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
        }
+       usleep(5000);
     }
-
+    while ((wpid = wait(&status)) > 0);
+    printf("MediaReal: %lf, MediaIm: %lf, Potencia: %lf, Ruido: %lf, totalVisibilidades: %lf", dataHijos[0][0], dataHijos[0][1], dataHijos[0][2], dataHijos[0][3], dataHijos[0][4]);
     printf("\n\n##### Fin de la ejecucion PADRE #####\n\n");
     return 0;
     //ref: http://www.lsi.us.es/cursos/seminario-1.html#331
