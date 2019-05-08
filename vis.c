@@ -111,8 +111,11 @@ int main(int argc, char* argv[])
     ruido = 0;
     totalVisibilidades = 0;
 
-    //printf("Soy el hijo nro: %i\n", nro);
-    //printf("Voy a leer \n");
+    char* buffer = (char*)malloc(sizeof(char)*SIZE);
+    char* mensaje[]  = "Se ha recibido un mensaje";
+    while(read(STDIN_FILENO, buffer, SIZE) != 3){
+      write(STDOUT_FILENO, mensaje, strlen(mensaje));
+    }
 
     //read(STDIN_FILENO, buffer, SIZE);
     //write(STDOUT_FILENO, buffer, SIZE);

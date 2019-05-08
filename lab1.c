@@ -225,9 +225,11 @@ int main(int argc, char* argv[])
     }
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
     //TEST: enviando datos a un hijo
-    //write(pipesEscritura[0][ESCRITURA], "Hola hijo", 10);
-    //read(pipesLectura[0][LECTURA],buff,10);
-    //printf("%s", buff);
+    char* buff = (char*)malloc(sizeof(char)*100);
+    write(pipesEscritura[0][ESCRITURA], "Hola hijo", 10);
+    read(pipesLectura[0][LECTURA],buff,100);
+    
+    printf("%s\n", buff);
     
     fs = fopen(fileIn, "r");
     if(fs == NULL){
