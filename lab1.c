@@ -266,7 +266,6 @@ int main(int argc, char* argv[])
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
         if(disc >= 0)
         {
-            printf("LEYENDO: %s\r\n", line);
             write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
             //write(pipesEscritura[disc][ESCRITURA], line, 128);
             //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
