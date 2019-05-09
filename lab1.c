@@ -12,10 +12,11 @@
 #define LECTURA 0
 #define ESCRITURA 1
 
-void readLine(FILE* file, char* line){
+char* readLine(FILE* file){
     int i;
     int limit = 128;
     int read;
+    char* line = (char*)malloc(sizeof(char)*128);
 
     read = fread(line, sizeof(char), limit, file);
     line[read] = '\0';
@@ -28,11 +29,11 @@ void readLine(FILE* file, char* line){
             break;
         }
     }
-
     if(i != read)
     {
         fseek(file, i - read + 1, SEEK_CUR);
     }
+    return line;
 }
 
 //Retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
@@ -246,8 +247,7 @@ int main(int argc, char* argv[])
     int count = 1;
     printf("Procesando linea: \r\n");
     while(!feof(fs)){
-       char *line = (char*)malloc(128*sizeof(char));
-       readLine(fs, line);
+       char *line = readLine(fs);
        if(line[0] == '\0'){
          //AQUI ES CUANDO SE AVISA A LOS HIJOS DE FIN
          //Y SE LES PIDE LOS DATOS CALCULADOS.
@@ -279,7 +279,8 @@ int main(int argc, char* argv[])
         count = count + 1;
        }
        usleep(5000);
-    }
+       free(line);
+     }
     while ((wpid = wait(&status)) > 0);
     for(i = 0; i < discCant; i++){
       writeFile(dataHijos[i], fileOut, i + 1);
