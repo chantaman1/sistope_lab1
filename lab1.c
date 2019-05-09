@@ -243,10 +243,11 @@ int main(int argc, char* argv[])
        printf("File %s does not exist.\r\n", fileIn);
        exit(0);
     }
+    int count = 1;
+    printf("Procesando linea: \r\n");
     while(!feof(fs)){
        char *line = (char*)malloc(128*sizeof(char));
        readLine(fs, line);
-       //printf("DATOS : %d\r\n", line[0]);
        if(line[0] == '\0'){
          //AQUI ES CUANDO SE AVISA A LOS HIJOS DE FIN
          //Y SE LES PIDE LOS DATOS CALCULADOS.
@@ -270,6 +271,12 @@ int main(int argc, char* argv[])
             //write(pipesEscritura[disc][ESCRITURA], line, 128);
             //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
         }
+        //Esto permite hacer conocer al usuario que linea del archivo el programa esta leyendo.
+        printf("\b\b\b\b\b\b\b\b\b");
+        fflush(stdout);
+        printf("%.7d", count);
+        fflush(stdout);
+        count = count + 1;
        }
        usleep(5000);
     }
@@ -281,6 +288,7 @@ int main(int argc, char* argv[])
     if(bFlag)
     {
         int total = 0;
+        printf("\r\n");
         for(i = 0; i < discCant; i++)
         {
             printf("Soy el hijo, de pid %i y procese %i visibilidades\r\n", childs[i], (int)dataHijos[i][4]);
