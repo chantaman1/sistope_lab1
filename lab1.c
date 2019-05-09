@@ -258,14 +258,12 @@ int main(int argc, char* argv[])
          }
        }
        else{
-        printf("DATA: %s\r\n", line);
         //AQUI SE LES ENTREGA LINEA A LINEA LOS DATOS DE ENTRADA.
         //A CADA HIJO QUE TENGAMOS.
         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
-        printf("disco destino: %i\r\n", disc);
         if(disc >= 0)
-        {       
+        {
             write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
             //write(pipesEscritura[disc][ESCRITURA], line, 128);
             //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
@@ -274,17 +272,37 @@ int main(int argc, char* argv[])
        usleep(5000);
     }
     while ((wpid = wait(&status)) > 0);
-    printf("MediaReal: %lf, MediaIm: %lf, Potencia: %lf, Ruido: %lf, totalVisibilidades: %lf", dataHijos[0][0], dataHijos[0][1], dataHijos[0][2], dataHijos[0][3], dataHijos[0][4]);
-    printf("\n\n##### Fin de la ejecucion PADRE #####\n\n");
-    
+    for(i = 0; i < discCant; i++){
+      writeFile(dataHijos[i], fileOut, i + 1);
+    }
     //Acá empezamos a guardar
-    int m;
     if(bFlag)
     {
-        for(i=0; i<cantDisc; i++)
+        int total = 0;
+        for(i = 0; i < discCant; i++)
         {
-            printf("Soy el hijo, de pid %i y procese %i visibilidades\r\n", childs[i], dataHijos[i][4]);
+            printf("Soy el hijo, de pid %i y procese %i visibilidades\r\n", childs[i], (int)dataHijos[i][4]);
+            total = total + (int)dataHijos[i][4];
         }
+        printf("Total de visibilidades procesadas por mis hijos: %i\r\n", total);
+
     }
+    //Antes de finalizar el programa, liberamos la memoria.
+    //Liberamos la memoria del arreglo doble de Double.
+    for(i = 0; i < discCant; i++){
+      free(dataHijos[i]);
+    }
+    free(dataHijos);
+    //Ahora liberamos los pipes.
+    for(i = 0; i < discCant; i++){
+      free(pipesEscritura[i]);
+      free(pipesLectura[i]);
+    }
+    free(pipesEscritura);
+    free(pipesLectura);
+    //Liberamos la memoria del resto.
+    free(childs);
+
+    printf("\n\n##### Fin de la ejecucion PADRE #####\n\n");
     return 0;
 }

@@ -113,8 +113,6 @@ double* prepararDatosVisibilidad(){
 
 int main(int argc, char* argv[])
 {
-  printf("\n\n##### Inicio de la ejecucion HIJO #####\n\n");
-
   int lectura = atoi(argv[1]);
   int escritura = atoi(argv[2]);
 
@@ -133,10 +131,5 @@ int main(int argc, char* argv[])
     double* datosObtenidos = prepararDatosVisibilidad();
     write(escritura, datosObtenidos, SIZE);
   }
-
-  //read(STDIN_FILENO, buffer, SIZE);
-  //write(STDOUT_FILENO, buffer, SIZE);
-
-  printf("\n\n##### Fin de la ejecucion HIJO #####\n\n");
   return 0;
 }
