@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
     int i;
     pid_t child_pid, wpid;
     int status = 0;
+    int * childs = (int*)malloc(sizeof(int)*discCant);
     int ** pipesLectura = (int**)malloc(sizeof(int*)*discCant);         //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA LECTURA DEL PADRE
     int ** pipesEscritura = (int**)malloc(sizeof(int*)*discCant);       //SE CREA UN ARREGLO DE TAMAÑO DISCCANT PARA LA ESCRITURA DEL PADRE
     for(i=0; i<discCant; i++)                                           //SE CREARÁN TANTOS HIJOS COMOS DISCOS
@@ -218,10 +219,19 @@ int main(int argc, char* argv[])
                 exit(1);
             }
         }
+        else {
+            childs[i] = child_pid;
+        }
     }
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
     //TEST: enviando datos a un hijo
     //read(pipesLectura[0][LECTURA],buff,100);
+    //Datoshijos:
+    //0. media real
+    //1. imaginaria
+    //2. portencia
+    //3. ruido
+    //4. vis totales
     fs = fopen(fileIn, "r");
     int j;
     double **dataHijos = (double**)malloc(sizeof(double*)*discCant);
@@ -254,15 +264,27 @@ int main(int argc, char* argv[])
         //PLAN: ENVIAR LINE AL HIJO SELECCIONADO EN DISC MEDIANTE PIPE.
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
         printf("disco destino: %i\r\n", disc);
-        write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
-        //write(pipesEscritura[disc][ESCRITURA], line, 128);
-        //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+        if(disc >= 0)
+        {       
+            write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
+            //write(pipesEscritura[disc][ESCRITURA], line, 128);
+            //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
+        }
        }
        usleep(5000);
     }
     while ((wpid = wait(&status)) > 0);
     printf("MediaReal: %lf, MediaIm: %lf, Potencia: %lf, Ruido: %lf, totalVisibilidades: %lf", dataHijos[0][0], dataHijos[0][1], dataHijos[0][2], dataHijos[0][3], dataHijos[0][4]);
     printf("\n\n##### Fin de la ejecucion PADRE #####\n\n");
+    
+    //Acá empezamos a guardar
+    int m;
+    if(bFlag)
+    {
+        for(i=0; i<cantDisc; i++)
+        {
+            printf("Soy el hijo, de pid %i y procese %i visibilidades\r\n", childs[i], dataHijos[i][4]);
+        }
+    }
     return 0;
-    //ref: http://www.lsi.us.es/cursos/seminario-1.html#331
 }
