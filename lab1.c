@@ -19,6 +19,7 @@ char* readLine(FILE* file){
     char* line = (char*)malloc(sizeof(char)*128);
 
     read = fread(line, sizeof(char), limit, file);
+    //printf("READ BYTES: %d\r\nDATA: %s\r\n", read, line);
     line[read] = '\0';
 
     for(i = 0; i <= read;i++)
@@ -198,13 +199,8 @@ int main(int argc, char* argv[])
             //ENTONCES EL HIJO:
             // - LEERÁ DESDE STDIN
             // - ESCRIBIRÁ POR STDOUT
-
-            //dup2(pipesLectura[i][ESCRITURA], STDOUT_FILENO);
-            //close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-
-            //dup2(pipesEscritura[i][LECTURA], STDIN_FILENO);
-            //close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
-
+            close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+            close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
 
             //ESTE ES EL BUENO
             char * canalLecturaHijo = (char*)malloc(sizeof(char)*10);
@@ -223,6 +219,8 @@ int main(int argc, char* argv[])
         }
         else {
             childs[i] = child_pid;
+            close(pipesLectura[i][ESCRITURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+            close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
         }
     }
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
@@ -268,8 +266,6 @@ int main(int argc, char* argv[])
         if(disc >= 0)
         {
             write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
-            //write(pipesEscritura[disc][ESCRITURA], line, 128);
-            //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
         }
         //Esto permite hacer conocer al usuario que linea del archivo el programa esta leyendo.
         printf("\b\b\b\b\b\b\b\b\b");
@@ -281,11 +277,12 @@ int main(int argc, char* argv[])
        usleep(5000);
        free(line);
      }
-    while ((wpid = wait(&status)) > 0);
+    while ((wpid = wait(&status)) > 0); //FORZAMOS AL PADRE A ESPERAR POR TODOS SUS HIJOS
+    //ESCRIBIMOS EN EL ARCHIVO LOS DATOS OBTENIDOS POR LOS HIJOS.
     for(i = 0; i < discCant; i++){
       writeFile(dataHijos[i], fileOut, i + 1);
     }
-    //Acá empezamos a guardar
+    //AQUI SE ENTREGA LOS RESULTADOS POR PANTALLA EN CASO DE QUE EL FLAG SEA VERDAD.
     if(bFlag)
     {
         int total = 0;
