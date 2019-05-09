@@ -1,0 +1,120 @@
+Disco 1:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 2:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 3:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 4:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 5:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 6:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 7:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 8:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 9:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 10:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 11:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 12:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 13:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 14:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 15:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 16:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 17:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 18:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 19:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
+Disco 20:
+Media real: 0.000000
+Media imaginaria: 0.000000
+Potencia: 0.000000
+Ruido total: 0.000000
+
