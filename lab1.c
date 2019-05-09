@@ -42,7 +42,7 @@ int checkDestination(double coordV, double coordU, int discWidth, int discCant){
     distanceUV = sqrt(pow(coordV,2)+ pow(coordU,2));
     int disc = (distanceUV/discWidth);
     if(distanceUV > maxRadius){
-       return -1;
+       return discCant - 1;
     }
     else{
        return disc;
