@@ -112,6 +112,7 @@ void writeFile(double* informacionHijos, char* nombreArchivo, int numDisco){
     fwrite(numArr, sizeof(char), strlen(numArr), fp);
     fwrite(endLine, sizeof(char), strlen(endLine), fp);
   }
+  fwrite(endLine, sizeof(char), strlen(endLine), fp);
   fclose(fp);
 }
 
@@ -164,7 +165,7 @@ int main(int argc, char* argv[])
     }
 
     //DEBUG
-    printf("Hay %i discos\n", discCant);
+    printf("Iniciando procesamiento con %i discos...\n", discCant);
 
     int i;
     pid_t child_pid, wpid;
@@ -264,6 +265,7 @@ int main(int argc, char* argv[])
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
         if(disc >= 0)
         {
+            printf("LEYENDO: %s\r\n", line);
             write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
             //write(pipesEscritura[disc][ESCRITURA], line, 128);
             //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
