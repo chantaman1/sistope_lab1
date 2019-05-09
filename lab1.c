@@ -198,13 +198,8 @@ int main(int argc, char* argv[])
             //ENTONCES EL HIJO:
             // - LEERÁ DESDE STDIN
             // - ESCRIBIRÁ POR STDOUT
-
-            //dup2(pipesLectura[i][ESCRITURA], STDOUT_FILENO);
-            //close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-
-            //dup2(pipesEscritura[i][LECTURA], STDIN_FILENO);
-            //close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
-
+            close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+            close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
 
             //ESTE ES EL BUENO
             char * canalLecturaHijo = (char*)malloc(sizeof(char)*10);
@@ -223,6 +218,8 @@ int main(int argc, char* argv[])
         }
         else {
             childs[i] = child_pid;
+            close(pipesLectura[i][ESCRITURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
+            close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
         }
     }
     //EN ESTE PUNTO SE HAN CREADO TODOS LOS HIJOS Y SE HAN COMUNICADO MEDIANTE PIPES
@@ -268,8 +265,6 @@ int main(int argc, char* argv[])
         if(disc >= 0)
         {
             write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
-            //write(pipesEscritura[disc][ESCRITURA], line, 128);
-            //printf("Informacion: %s, Pertenece al disco: %d\r\n", line, disc);
         }
         //Esto permite hacer conocer al usuario que linea del archivo el programa esta leyendo.
         printf("\b\b\b\b\b\b\b\b\b");
