@@ -22,7 +22,7 @@ void readLine(FILE* file, char* line){
 
     for(i = 0; i <= read;i++)
     {
-        if('\0' == line[i] || '\n' == line[i] || '\r' == line[i])
+        if('\0' == line[i] || '\n' == line[i] || '\r' == line[i] || line[i] == 0)
         {
             line[i] = '\0';
             break;
@@ -246,6 +246,7 @@ int main(int argc, char* argv[])
     while(!feof(fs)){
        char *line = (char*)malloc(128*sizeof(char));
        readLine(fs, line);
+       //printf("DATOS : %d\r\n", line[0]);
        if(line[0] == '\0'){
          //AQUI ES CUANDO SE AVISA A LOS HIJOS DE FIN
          //Y SE LES PIDE LOS DATOS CALCULADOS.
