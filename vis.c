@@ -115,17 +115,26 @@ int main(int argc, char* argv[])
 {
   int lectura = atoi(argv[1]);
   int escritura = atoi(argv[2]);
-
+  int reading = 0; //INDICADOR PARA SABER SI LEO EL LARGO DE LA DATA DE ENTRADA O SI LEO LA DATA.
   mediaReal = 0;
   mediaImaginaria = 0;
   ruido = 0;
   totalVisibilidades = 0;
 
-  char* buffer = (char*)malloc(sizeof(char)*SIZE);
-  while(read(lectura, buffer, SIZE) != 3){
-    obtenerVisibilidadRecibida(buffer);
-    free(buffer);
-    buffer = (char*)malloc(sizeof(char)*SIZE);
+  int dataLength = 10;
+  char* buffer = (char*)malloc(sizeof(char)*dataLength);
+  while(read(lectura, buffer, dataLength) != 3){
+    if(reading == 0){
+      dataLength = atoi(buffer);
+      buffer = (char*)malloc(sizeof(char)*dataLength);
+      reading = 1;
+    }
+    else{
+      reading = 0;
+      obtenerVisibilidadRecibida(buffer);
+      free(buffer);
+      buffer = (char*)malloc(sizeof(char)*dataLength);
+    }
   }
   if(strcmp(buffer, "FIN") == 0){
     double* datosObtenidos = prepararDatosVisibilidad();

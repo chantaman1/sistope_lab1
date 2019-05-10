@@ -18,10 +18,14 @@ char* readLine(FILE* file){
   char* ch = (char*)malloc(sizeof(char)*64);
   int read;
   while((read = fread(ch, sizeof(char), 1, file)) == 1){
-    line[i] = ch[0];
-    i++;
     if(ch[0] == 10){
+      line[i] = '\0';
+      i++;
       break;
+    }
+    else{
+      line[i] = ch[0];
+      i++;
     }
   }
   if(line[i] == 10){
@@ -161,6 +165,15 @@ int main(int argc, char* argv[])
             }
         }
     }
+    //CONDICION QUE EVITA VALORES NEGATIVOS EN LA ENTRADA DE LOS ARCHIVOS.
+    if(discCant < 1 || discWidth < 1){
+      printf("La cantidad de discos y/o ancho de estos no puede ser menor a 1.\r\nIntente nuevamente.\r\n");
+      exit(0);
+    }
+    if(strcmp(fileOut, fileIn) == 0){
+      printf("El nombre del archivo de entrada no puede ser igual al archivo de salida.\r\nIntente nuevamente.\r\n");
+      exit(0);
+    }
 
     //DEBUG
     printf("Iniciando procesamiento con %i discos...\n", discCant);
@@ -259,7 +272,11 @@ int main(int argc, char* argv[])
         int disc = obtenerVisibilidadRecibida(line, discWidth, discCant);
         if(disc >= 0)
         {
-            write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
+          char* dataLength = (char*)malloc(sizeof(char)*10);
+          sprintf(dataLength, "%li", strlen(line));
+          write(pipesEscritura[disc][ESCRITURA], dataLength, 10);
+          usleep(1500);
+          write(pipesEscritura[disc][ESCRITURA], line, strlen(line));
         }
         //Esto permite hacer conocer al usuario que linea del archivo el programa esta leyendo.
         printf("\b\b\b\b\b\b\b\b\b");
@@ -268,7 +285,7 @@ int main(int argc, char* argv[])
         fflush(stdout);
         count = count + 1;
        }
-       usleep(5000);
+       usleep(2000);
        free(line);
      }
     while ((wpid = wait(&status)) > 0); //FORZAMOS AL PADRE A ESPERAR POR TODOS SUS HIJOS

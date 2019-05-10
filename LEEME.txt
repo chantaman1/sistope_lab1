@@ -1,0 +1,16 @@
+El programa es capaz de procesar los datos ingresados con su formato CVS.
+
+Sin embargo no es completamente rapido, esto debido a lo siguiente:
+
+Cuando se lee el archivo de entrada, por cada linea se le calcula el disco de destino
+con esto, se envia al hijo correspondiente mediante pipe usando Write, pero
+entre cada de estos ciclos se incorporo la funcion 'usleep' con un retardo de 4ms (milisegundos)
+esto debido a que sin esto, el hijo recibia mas de 3 lineas de datos provocando que el programa
+fallase. Por lo que se opto poner un tiempo muerto entre cada iteración, lo que soluciono los problemas.
+
+Para ejecutar un programa con 40000 datos:
+4msx40000 = 160000ms = 160 segundos, equivalente a 2:40 minutos.
+Para un programa con 100000 datos:
+4msx100000 = 400000ms = 400 segundos, equivalente a 6:40 minutos.
+
+Tener paciencia al revisar este laboratorio.
