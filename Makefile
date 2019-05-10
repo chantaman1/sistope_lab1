@@ -1,5 +1,5 @@
-Archivo_entrada = 100k.csv
-Archivo_salida = 100k.txt
+Archivo_entrada = prueba1.csv
+Archivo_salida = resultadoPrueba1.txt
 Cantidad_discos = 20
 Ancho_discos = 40
 

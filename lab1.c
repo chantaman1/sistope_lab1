@@ -13,28 +13,24 @@
 #define ESCRITURA 1
 
 char* readLine(FILE* file){
-    int i;
-    int limit = 128;
-    int read;
-    char* line = (char*)malloc(sizeof(char)*128);
-
-    read = fread(line, sizeof(char), limit, file);
-    //printf("READ BYTES: %d\r\nDATA: %s\r\n", read, line);
-    line[read] = '\0';
-
-    for(i = 0; i <= read;i++)
-    {
-        if('\0' == line[i] || '\n' == line[i] || '\r' == line[i] || line[i] == 0)
-        {
-            line[i] = '\0';
-            break;
-        }
+  int i = 0;
+  char* line = (char*)malloc(sizeof(char)*128);
+  char* ch = (char*)malloc(sizeof(char)*64);
+  int read;
+  while((read = fread(ch, sizeof(char), 1, file)) == 1){
+    line[i] = ch[0];
+    i++;
+    if(ch[0] == 10){
+      break;
     }
-    if(i != read)
-    {
-        fseek(file, i - read + 1, SEEK_CUR);
-    }
-    return line;
+  }
+  if(line[i] == 10){
+    line[i] = '\0';
+  }
+  if(read == 0){
+    line[0] = '\0';
+  }
+  return line;
 }
 
 //Retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
@@ -182,9 +178,6 @@ int main(int argc, char* argv[])
         pipesEscritura[i] = (int*)malloc(sizeof(int)*2);                //SE CREAN DOS PIPES POR CADA HIJO PARA ESCRIBIR (que el padre escriba)
         pipe(pipesLectura[i]);
         pipe(pipesEscritura[i]);
-                                            //EL PADRE...
-        //close(pipesLectura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
-        //close(pipesEscritura[i][LECTURA]);    //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
 
         child_pid = fork(); //SE CREA EL NUEVO HIJO
 
