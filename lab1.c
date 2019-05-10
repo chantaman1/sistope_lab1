@@ -12,10 +12,16 @@
 #define LECTURA 0
 #define ESCRITURA 1
 
+
+//Función que lee una línea de un archivo de texto desde un archivo
+//Entrada: Puntero al archivo del cuál se va a leer
+//Salida: Cadena de char
 char* readLine(FILE* file){
   int i = 0;
+  //Asignación de memoria para las cadenas
   char* line = (char*)malloc(sizeof(char)*128);
   char* ch = (char*)malloc(sizeof(char)*64);
+  
   int read;
   while((read = fread(ch, sizeof(char), 1, file)) == 1){
     if(ch[0] == 10){
@@ -37,13 +43,15 @@ char* readLine(FILE* file){
   return line;
 }
 
-//Retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
+//Funnción que retorna el int correspondiente al disco que le corresponde la coordenada de entrada.
+//Entrada: Coordenadas u,v, cantidad de discos y ancho de los discos
+//Salida: Disco de destino
 int checkDestination(double coordV, double coordU, int discWidth, int discCant){
     double distanceUV;
     double maxRadius = discWidth*discCant;
-    distanceUV = sqrt(pow(coordV,2)+ pow(coordU,2));
+    distanceUV = sqrt(pow(coordV,2)+ pow(coordU,2)); //Se calcula la distancia con la fórmula entregada
     int disc = (distanceUV/discWidth);
-    if(distanceUV > maxRadius){
+    if(distanceUV > maxRadius){ //Esto hace que el último disco albergue todas las visibilidades que queden fuera del espectro máximo
        return discCant - 1;
     }
     else{
@@ -51,6 +59,9 @@ int checkDestination(double coordV, double coordU, int discWidth, int discCant){
     }
 }
 
+//Función que inicializa un arreglo de char
+//Entrada: Arreglo y largo del arreglo
+//Salida: Nada, solo referencia
 void inicializarCharArray(char* array, int largo){
     int i;
     for(i = 0; i < largo; i++){
@@ -58,6 +69,9 @@ void inicializarCharArray(char* array, int largo){
     }
 }
 
+//Función que lee la visibilidad desde un cadena de datos
+//Entrada: Cadena de datos, ancho del disco, cantidad de discos
+//Salida: Visibilidad como entero
 int obtenerVisibilidadRecibida(char* visibilidad, int discWidth, int discCant){
     int i; //DECLARACION DE i PARA EL CICLO FOR.
     int j = 0; //DECLARACION DE j PARA POSICIONAR DOUBLE EN ARREGLO.
@@ -88,6 +102,9 @@ int obtenerVisibilidadRecibida(char* visibilidad, int discWidth, int discCant){
     return checkDestination(data[0], data[1], discWidth, discCant); //BUSCO EL DISCO AL QUE PERTENECE LA INFO.
 }
 
+//Función que escribe en un archivo los datos procesados por un hijo
+//Entrada: Arreglo de datos de un hijos, nombre del archivo de salida, número de disco actual
+//Salida: Nada
 void writeFile(double* informacionHijos, char* nombreArchivo, int numDisco){
   FILE *fp;
   int i;
@@ -208,7 +225,7 @@ int main(int argc, char* argv[])
             close(pipesLectura[i][LECTURA]);        //SE CIERRA EL PIPE DE ESCRITURA, YA QUE EL PADRE LEERÁ DESDE ESTE PIPE
             close(pipesEscritura[i][ESCRITURA]);    //SE CIERRA EL PIPE DE LECTURA, YA QUE EL PADRE ESCRIBIRÁ DESDE ESTE PIPE
 
-            //ESTE ES EL BUENO
+            //Definición de las cadenas que contendrán la información de los canales pipe
             char * canalLecturaHijo = (char*)malloc(sizeof(char)*10);
             char * canalEscrituraHijo = (char*)malloc(sizeof(char)*10);
 

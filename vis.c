@@ -116,6 +116,8 @@ int main(int argc, char* argv[])
   int lectura = atoi(argv[1]);
   int escritura = atoi(argv[2]);
   int reading = 0; //INDICADOR PARA SABER SI LEO EL LARGO DE LA DATA DE ENTRADA O SI LEO LA DATA.
+  //SE INICIALIZAN LAS VARIABLES INICIALES EN 0
+
   mediaReal = 0;
   mediaImaginaria = 0;
   ruido = 0;
@@ -123,6 +125,8 @@ int main(int argc, char* argv[])
 
   int dataLength = 10;
   char* buffer = (char*)malloc(sizeof(char)*dataLength);
+
+  //SE LEERÁ DESDE EL PIPE HASTA QUE EL PADRE ENVÍE UNA SEÑAL DE FIN DE LARGO 3
   while(read(lectura, buffer, dataLength) != 3){
     if(reading == 0){
       dataLength = atoi(buffer);

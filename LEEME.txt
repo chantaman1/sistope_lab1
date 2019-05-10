@@ -13,4 +13,7 @@ Para ejecutar un programa con 40000 datos:
 Para un programa con 100000 datos:
 4msx100000 = 400000ms = 400 segundos, equivalente a 6:40 minutos.
 
+Además para compilar con makefile se deben editar las variables definidas
+al comienzo del Makefile.
+
 Tener paciencia al revisar este laboratorio.
