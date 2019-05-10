@@ -227,6 +227,7 @@ int main(int argc, char* argv[])
     //4. vis totales
     fs = fopen(fileIn, "r");
     int j;
+    //Creando arreglo de Doubles que recibira la informacion de los hijos.
     double **dataHijos = (double**)malloc(sizeof(double*)*discCant);
     for(j = 0; j < discCant; j++){
       dataHijos[j] = (double*)malloc(sizeof(double)*512);
@@ -238,7 +239,7 @@ int main(int argc, char* argv[])
     int count = 1;
     printf("Procesando linea: \r\n");
     while(!feof(fs)){
-       char *line = readLine(fs);
+       char *line = readLine(fs); //Leemos cada linea del archivo en cuestion.
        if(line[0] == '\0'){
          //AQUI ES CUANDO SE AVISA A LOS HIJOS DE FIN
          //Y SE LES PIDE LOS DATOS CALCULADOS.
